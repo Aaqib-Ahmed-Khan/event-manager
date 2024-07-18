@@ -1,0 +1,58 @@
+/* General styles for the page */
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    background-color: #64649e;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Navbar styles */
+  .navbar {
+    background-color: #0c3e67; /* Black background color */
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .navbar .container .navbar-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar .container .navbar-left a,
+  .navbar .container .navbar-left span {
+    color: #ffffff; /* White text color */
+    font-weight: bold;
+    margin-right: 1rem;
+    text-decoration: none;
+  }
+  
+  .navbar .container .navbar-left a:hover,
+  .navbar .container .navbar-left span:hover {
+    color: #d3d3d3; /* Lighter text color on hover */
+  }
+  
+  .navbar .container .navbar-right a {
+    color: #ffffff; /* White text color */
+    font-weight: bold;
+    text-decoration: none;
+  }
+  
+  .navbar .container .navbar-right a:hover {
+    color: #d3d3d3; /* Lighter text color on hover */
+  }
+  
+  /* Styles for the profile image */
+  .navbar .container .navbar-left img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+  

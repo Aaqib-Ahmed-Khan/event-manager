@@ -370,7 +370,7 @@
 //       console.error("Error getting document:", error);
 //     });
 // }
-import { auth, db, onAuthStateChanged, signOut, getDocs, collection, arrayUnion, doc, updateDoc } from "./utils/utils.js";
+import { auth, db, onAuthStateChanged, signOut, getDocs, collection, arrayUnion, arrayRemove, doc, updateDoc } from "./utils/utils.js";
 
 // Select necessary elements from the DOM
 const logoutBtn = document.getElementById("logout_btn");
@@ -387,7 +387,11 @@ async function getAllEvents() {
     events_cards_container.innerHTML = ''; // Clear the container before appending new cards
     querySnapshot.forEach((doc) => {
       const eventData = doc.data();
-      const { banner, name, model, createdByEmail, price, sale } = eventData;
+      const { banner, name, model, createdByEmail, price, sale, likes = [] } = eventData;
+      const likedByCurrentUser = auth.currentUser && likes.includes(auth.currentUser.uid);
+      const likeButtonText = likedByCurrentUser ? "ADDED TO CART.." : "Add to Cart";
+      const likeCount = likes.length ? likes.length : "";
+
       const card = `
         <div class="bg-white shadow-md rounded-lg overflow-hidden">
           <img
@@ -403,14 +407,10 @@ async function getAllEvents() {
             <p class="text-gray-600 mb-2">Created by: ${createdByEmail}</p>
             <div class="flex justify-between items-center">
               <button 
-              id=${doc.id}
-              onclick="likeEvent(this)" class="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600">
-               ${
-              auth?.currentUser && event?.likes?.includes(auth?.currentUser.uid)
-                ? "Liked.."
-                : "Like"
-            } ${events?.likes?.length ? events?.likes?.length : ""}
-          </button>
+                id="${doc.id}"
+                onclick="likeEvent(this)" 
+                class="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600">
+                ${likeButtonText} ${likeCount}
               </button>
             </div>
           </div>
@@ -427,24 +427,36 @@ async function getAllEvents() {
 
 // Function to handle liking an event
 async function likeEvent(e) {
-  console.log(e);
   if (auth.currentUser) {
+    e.disabled = true;
     const docRef = doc(db, "events", e.id);
-    console.log("Document Reference: ", docRef);
+    const docSnap = await getDoc(docRef);
+    const eventData = docSnap.data();
+    const likes = eventData.likes || [];
 
-    try {
-      await updateDoc(docRef, {
-        likes: arrayUnion(auth.currentUser.uid)
-      });
-      alert("Document Updated");
-    } catch (err) {
-      console.error("Error updating document:", err);
+    if (likes.includes(auth.currentUser.uid)) {
+      updateDoc(docRef, {
+        likes: arrayRemove(auth.currentUser.uid),
+      })
+      .then(() => {
+        e.innerText = `Like ${likes.length - 1}`;
+        e.disabled = false;
+      })
+      .catch((err) => console.log(err));
+    } else {
+      updateDoc(docRef, {
+        likes: arrayUnion(auth.currentUser.uid),
+      })
+      .then(() => {
+        e.innerText = `Liked.. ${likes.length + 1}`;
+        e.disabled = false;
+      })
+      .catch((err) => console.log(err));
     }
   } else {
-    window.location.href = '../auth/login/index.html';
+    window.location.href = "/auth/login/index.html";
   }
 }
-
 
 // Function to handle user authentication state
 function handleUserState(user) {
@@ -452,7 +464,7 @@ function handleUserState(user) {
     const uid = user.uid;
     userImg.style.display = "inline-block";
     logoutBtn.style.display = "inline-block";
-    loginLink.style.display = "none";
+    loginLink.style.display = "inline-block";
     myEventsBtn.style.display = "inline-block";
     createEventBtn.style.display = "inline-block";
     // getUserInfo(uid);
@@ -462,7 +474,7 @@ function handleUserState(user) {
     logoutBtn.style.display = "none";
     myEventsBtn.style.display = "none";
     createEventBtn.style.display = "none";
-    loginLink.style.display = "inline-block";
+    loginLink.style.display="inline-block"
     getAllEvents(); // Fetch events when user is logged out
   }
 }
