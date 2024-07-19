@@ -408,7 +408,7 @@ async function getAllEvents() {
             <div class="flex justify-between items-center">
               <button 
                 id="${doc.id}"
-                onclick="likeEvent(this)" 
+                // onclick="likeEvent(this)" 
                 class="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600">
                 ${likeButtonText} ${likeCount}
               </button>
